@@ -18,9 +18,4 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\MessageHandlers\MessageHandlers.csproj" />
-    <ProjectReference Include="..\SharedModels\SharedModels.csproj" />
-  </ItemGroup>
-
 </Project>

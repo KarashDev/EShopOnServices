@@ -2,11 +2,11 @@
 {
     public interface ICatalogHandler
     {
-        Task AddCategory();
-        Task AddManufacturer();
-        Task AddProduct();
+        Task AddCategory(Category category);
+        Task AddManufacturer(Manufacturer manufacturer);
+        Task AddProduct(Product product);
 
-        Task GetCatalog();
+        List<Product> GetCatalog();
 
         Product SearchProduct(string productName, string manufacturerName);
     }
@@ -20,24 +20,42 @@
             this.client = client;
         }
 
-        public async Task AddCategory()
+        public async Task AddCategory(Category category)
         {
-            throw new NotImplementedException();
+            using (CatalogContext db = new CatalogContext())
+            {
+                db.Categories.Add(category);
+                db.SaveChanges();
+            }
         }
 
-        public async Task AddManufacturer()
+        public async Task AddManufacturer(Manufacturer manufacturer)
         {
-            throw new NotImplementedException();
+            using (CatalogContext db = new CatalogContext())
+            {
+                db.Manufacturers.Add(manufacturer);
+                db.SaveChanges();
+
+            }
         }
 
-        public async Task AddProduct()
+        public async Task AddProduct(Product product)
         {
-            throw new NotImplementedException();
+            using (CatalogContext db = new CatalogContext())
+            {
+                db.Products.Add(product);
+                db.SaveChanges();
+
+            }
         }
 
-        public async Task GetCatalog()
+        public List<Product> GetCatalog()
         {
-            throw new NotImplementedException();
+            using (CatalogContext db = new CatalogContext())
+            {
+                var products = db.Products.Include(p => p.Manufacturer).Include(p => p.Category).ToList();
+                return products;
+            }
         }
 
         public Product SearchProduct(string productName, string manufacturerName)

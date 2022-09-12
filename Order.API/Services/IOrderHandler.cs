@@ -12,14 +12,14 @@ namespace Order.API.Services
 
         void Checkout();
 
-        void CancelOrder();
+        void CancelOrder(Models.Order order);
     }
 
     public class OrderHandler : IOrderHandler
     {
         HttpClient client;
 
-        public OrderHandler(HttpClient client) 
+        public OrderHandler(HttpClient client)
         {
             this.client = client;
         }
@@ -37,7 +37,7 @@ namespace Order.API.Services
             var response = client.Send(webRequest);
             var responseString = await response.Content.ReadAsStringAsync();
 
-            var product  = JsonConvert.DeserializeObject<Product>(responseString);
+            var product = JsonConvert.DeserializeObject<Product>(responseString);
 
             return product;
         }
@@ -48,8 +48,8 @@ namespace Order.API.Services
             // для всех продуктов в корзине устанавливается этот объект заказа
             // заказ отправляется курьеру
             Random random = new Random();
-           
-            using (OrderContext db = new OrderContext()) 
+
+            using (OrderContext db = new OrderContext())
             {
                 Models.Order order = new Models.Order()
                 {
@@ -68,7 +68,6 @@ namespace Order.API.Services
 
         public async void SendOrder()
         {
-            //var productToSearch = new Product() { ProductName = productName, ManufacturerName = manufacturerName };
 
             using (OrderContext db = new OrderContext())
             {
@@ -81,16 +80,18 @@ namespace Order.API.Services
 
                 var response = client.Send(webRequest);
                 var responseString = await response.Content.ReadAsStringAsync();
-
-
-                //var product = JsonConvert.DeserializeObject<Product>(responseString);
-
             }
         }
 
-        public void CancelOrder()
+        public void CancelOrder(Models.Order order)
         {
-            throw new NotImplementedException();
+            var webRequest = new HttpRequestMessage(HttpMethod.Post, $"api/Delivery/cancel_order")
+            {
+                Content = new StringContent(System.Text.Json.JsonSerializer.Serialize(order), Encoding.UTF8, "application/json")
+            };
+
+            var response = client.Send(webRequest);
+            var responseString = response.Content.ReadAsStringAsync();
         }
 
         public void Checkout()
@@ -98,6 +99,5 @@ namespace Order.API.Services
             throw new NotImplementedException();
         }
 
-       
     }
 }

@@ -9,200 +9,93 @@ namespace Catalog.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    //[Route("http://localhost:7117/api/[controller]")]
     public class CatalogController : Controller
     {
-        private readonly IQueryService queryService;
-        private readonly ICommandService commandService;
         private readonly ICatalogHandler catalogHandler;
 
-        public CatalogController(IQueryService queryService, ICommandService commandService, ICatalogHandler catalogHandler)
+        public CatalogController(ICatalogHandler catalogHandler)
         {
             DatabaseCreator.CreateDataBase();
-            this.queryService = queryService;
-            this.commandService = commandService;
+
             this.catalogHandler = catalogHandler;
         }
-        //$"http://jiktest.orenpay.ru:4010/api/Buffet/get_prod_categories/{vendor}"
 
 
         [HttpGet("get_catalog")]
         [ProducesResponseType(typeof(IEnumerable<Product>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetCatalog()
         {
-            //try
-            //{
-            //var prodCategories = await queryService.GetProdCategories(vendor);
-
-            using (CatalogContext db = new CatalogContext())
+            try
             {
-                var prodCategories = db.Products.Include(p => p.Manufacturer).Include(p => p.Category).ToList();
-                return Ok(prodCategories);
+                var catalog = catalogHandler.GetCatalog();
+                return Ok(catalog);
             }
-
-            //return Ok();
-            //}
-            //catch (BuffetException ex)
-            //{
-            //    return BadRequest(new ErrorModel { Message = ex.Message });
-            //}
-            //catch (Exception ex)
-            //{
-            //    return StatusCode(StatusCodes.Status503ServiceUnavailable, new ErrorModel { Message = ex.Message, StackTrace = ex.StackTrace });
-            //}
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status503ServiceUnavailable);
+            }
         }
 
 
         [HttpPost("add_category")]
         public async Task<IActionResult> AddCategory(Category category)
         {
-            //try
-            //{
-            //await queueServiceApi.NewOrder(orderData);
-            using (CatalogContext db = new CatalogContext())
+            try
             {
-
-                db.Categories.Add(category);
-                db.SaveChanges();
-
+                catalogHandler.AddCategory(category);
                 return Ok();
             }
-
-            //return Ok();
-            //}
-            //catch (BuffetException ex)
-            //{
-            //    return BadRequest(new ErrorModel { Message = ex.Message });
-            //}
-            //catch (Exception ex)
-            //{
-            //    return StatusCode(StatusCodes.Status503ServiceUnavailable, new ErrorModel { Message = ex.Message, StackTrace = ex.StackTrace });
-            //}
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status503ServiceUnavailable);
+            }
         }
 
 
         [HttpPost("add_manufacturer")]
         public async Task<IActionResult> AddManufacturer(Manufacturer manufacturer)
         {
-            //try
-            //{
-            //await queueServiceApi.NewOrder(orderData);
-
-            using (CatalogContext db = new CatalogContext())
+            try
             {
-                db.Manufacturers.Add(manufacturer);
-                db.SaveChanges();
-
+                catalogHandler.AddManufacturer(manufacturer);
                 return Ok();
             }
-
-            //return Ok();
-            //}
-            //catch (BuffetException ex)
-            //{
-            //    return BadRequest(new ErrorModel { Message = ex.Message });
-            //}
-            //catch (Exception ex)
-            //{
-            //    return StatusCode(StatusCodes.Status503ServiceUnavailable, new ErrorModel { Message = ex.Message, StackTrace = ex.StackTrace });
-            //}
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status503ServiceUnavailable);
+            }
         }
 
 
         [HttpPost("add_product")]
         public async Task<IActionResult> AddProduct(Product product)
         {
-            //try
-            //{
-            //    //await queueServiceApi.NewOrder(orderData);
-            //return Ok();
-
-            using (CatalogContext db = new CatalogContext())
+            try
             {
-                db.Products.Add(product);
-                db.SaveChanges();
-
+                catalogHandler.AddProduct(product);
                 return Ok();
             }
-            //}
-            //catch (BuffetException ex)
-            //{
-            //    return BadRequest(new ErrorModel { Message = ex.Message });
-            //}
-            //catch (Exception ex)
-            //{
-            //    return StatusCode(StatusCodes.Status503ServiceUnavailable, new ErrorModel { Message = ex.Message, StackTrace = ex.StackTrace });
-            //}
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status503ServiceUnavailable);
+            }
         }
 
 
         [HttpPost("search_product")]
         public async Task<IActionResult> SearchProduct(ProductFromOrder product)
         {
-            //try
-            //{
-            var result = catalogHandler.SearchProduct(product.ProductName, product.ManufacturerName);
+            try
+            {
+                var result = catalogHandler.SearchProduct(product.ProductName, product.ManufacturerName);
 
-            return Ok(result);
-            //}
-            //catch (BuffetException ex)
-            //{
-            //    return BadRequest(new ErrorModel { Message = ex.Message });
-            //}
-            //catch (Exception ex)
-            //{
-            //    return StatusCode(StatusCodes.Status503ServiceUnavailable, new ErrorModel { Message = ex.Message, StackTrace = ex.StackTrace });
-            //}
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status503ServiceUnavailable);
+            }
         }
-
-
-
-        //[HttpPost("new_order")]
-        //public async Task<IActionResult> NewOrder(OrderData orderData)
-        //{
-        //    try
-        //    {
-        //        await queueServiceApi.NewOrder(orderData);
-        //        return Ok();
-        //    }
-        //    catch (BuffetException ex)
-        //    {
-        //        return BadRequest(new ErrorModel { Message = ex.Message });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(StatusCodes.Status503ServiceUnavailable, new ErrorModel { Message = ex.Message, StackTrace = ex.StackTrace });
-        //    }
-        //}
-
-        //[HttpGet("search_product/{productName}")]
-        //[ProducesResponseType(typeof(IEnumerable<Product>), StatusCodes.Status200OK)]
-        //public async Task<IActionResult> SearchProduct(string productName)
-        //{
-        //    //try
-        //    //{
-        //    //var prodCategories = await queryService.GetProdCategories(vendor);
-
-        //    using (CatalogContext db = new CatalogContext())
-        //    {
-        //        var foundProducts = db.Products.Where(p => p.ProductName == productName).ToList();
-
-
-        //        return Ok(foundProducts);
-        //    }
-
-        //    //return Ok(prodCategories);
-        //    //}
-        //    //catch (BuffetException ex)
-        //    //{
-        //    //    return BadRequest(new ErrorModel { Message = ex.Message });
-        //    //}
-        //    //catch (Exception ex)
-        //    //{
-        //    //    return StatusCode(StatusCodes.Status503ServiceUnavailable, new ErrorModel { Message = ex.Message, StackTrace = ex.StackTrace });
-        //    //}
-        //}
-
 
     }
 }
